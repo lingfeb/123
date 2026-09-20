@@ -1,0 +1,41 @@
+name: chromium-fuzzers
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          sudo apt-get update -qq
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH="$(pwd)/depot_tools:$PATH"
+          echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+          gclient --version || true
+          df -h / | tail -1
+      - name: Fetch Chromium
+        run: |
+          fetch --no-history chromium
+          gclient sync --no-history -D
+          df -h / | tail -1
+      - name: Discover and Build fuzzers
+        run: |
+          cd src
+          gn gen out/fuzz --args='is_asan=true is_debug=false is_component_build=false symbol_level=1 v8_enable_i18n_support=false use_libfuzzer=true'
+          echo "== pdfium fuzzer targets =="
+          gn ls out/fuzz '//third_party/pdfium/*' | grep -i fuzzer | head -20 || true
+          ninja -C out/fuzz -j4 pdfium_fuzzer 2>&1 | tail -5 || {
+            T=$(ninja -C out/fuzz -t targets all 2>/dev/null | cut -d: -f1 | grep -E 'pdfium.*fuzzer' | head -5 | tr '\n' ' ')
+            echo "fallback targets: $T"
+            test -n "$T" && ninja -C out/fuzz -j4 $T
+          }
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-pdfium-fuzzer
+          path: src/out/fuzz/pdfium_fuzzer
+          if-no-files-found: warn
+          retention-days: 30
