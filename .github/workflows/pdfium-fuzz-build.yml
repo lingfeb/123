@@ -1,0 +1,29 @@
+name: pdfium-fuzzer
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        run: git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git && echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+      - name: Fetch PDFium
+        run: |
+          mkdir pdfium && cd pdfium
+          fetch --no-history pdfium
+          cd ..
+          gclient sync --no-history
+      - name: Build
+        run: |
+          cd pdfium
+          gn gen out/fuzz --args='is_asan=true is_debug=false pdf_is_standalone=true pdf_enable_v8=false pdf_use_skia=false use_libfuzzer=true'
+          ninja -C out/fuzz -j4 pdfium_fuzzer
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdfium-fuzzer
+          path: pdfium/out/fuzz/pdfium_fuzzer
+          retention-days: 30
