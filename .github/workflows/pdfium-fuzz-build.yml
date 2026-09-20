@@ -9,7 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup
-        run: git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git && echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+        run: |
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH="$(pwd)/depot_tools:$PATH"
+          echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+          gclient --version || true
       - name: Fetch PDFium
         run: |
           mkdir pdfium && cd pdfium
