@@ -31,4 +31,5 @@ jobs:
           path: |
             v8/out/fuzz/v8_simple_*_fuzzer
             v8/out/fuzz/*.so
+            v8/out/fuzz/*.bin
           retention-days: 30
