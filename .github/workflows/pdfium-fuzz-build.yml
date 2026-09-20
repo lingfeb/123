@@ -22,12 +22,10 @@ jobs:
         run: |
           cd pdfium
           gn gen out/fuzz --args='is_asan=true is_debug=false pdf_is_standalone=true pdf_enable_v8=false pdf_use_skia=false use_libfuzzer=true'
-          FUZZ_TARGET=$(gn ls out/fuzz '//testing/fuzzers:*' 2>/dev/null | grep -oE '[a-z_]+fuzzer$' | head -8 | tr '\n' ' ')
-          echo "targets: $FUZZ_TARGET"
-          ninja -C out/fuzz -j4 $FUZZ_TARGET
+          ninja -C out/fuzz -j4 pdfium_fuzzer pdf_codec_jpeg_fuzzer pdf_codec_png_fuzzer pdf_codec_bmp_fuzzer pdf_codec_gif_fuzzer pdf_css_fuzzer pdf_lzw_fuzzer pdf_cfx_barcode_fuzzer pdf_bidi_fuzzer
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: pdfium-fuzzer
-          path: pdfium/out/fuzz/*fuzzer*
+          path: pdfium/out/fuzz/pdf*_*fuzzer
           retention-days: 30
