@@ -22,11 +22,10 @@ jobs:
         run: |
           cd pdfium
           gn gen out/fuzz --args='is_asan=true is_debug=false pdf_is_standalone=true pdf_enable_v8=false pdf_use_skia=false use_libfuzzer=true'
-          echo "== all fuzzer targets =="
-          gn ls out/fuzz | grep -E "fuzzer" | head -40 || echo "gn ls empty"
-          FUZZERS=$(gn ls out/fuzz | sed 's|.*/:||' | grep -E '^pdf[a-z_]*_fuzzer$' | head -10 | tr '\n' ' ')
+          ninja -C out/fuzz -t targets all | cut -d: -f1 | grep -E '^pdf[a-z_]*_fuzzer$' | head -40 || echo "no fuzzer targets"
+          FUZZERS=$(ninja -C out/fuzz -t targets all | cut -d: -f1 | grep -E '^pdf[a-z_]*_fuzzer$' | head -10 | tr '\n' ' ')
           echo "building: $FUZZERS"
-          ninja -C out/fuzz -j4 $FUZZERS
+          test -n "$FUZZERS" && ninja -C out/fuzz -j4 $FUZZERS || ninja -C out/fuzz -j4 pdfium_fuzzer
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
