@@ -17,9 +17,7 @@ jobs:
           gclient --version || true
       - name: Fetch V8
         run: |
-          mkdir v8 && cd v8
           fetch --no-history v8
-          cd ..
           gclient sync --no-history
       - name: Build fuzzers
         run: |
