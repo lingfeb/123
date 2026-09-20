@@ -1,0 +1,32 @@
+name: v8-fuzzers
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq pkg-config
+          git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+      - name: Fetch V8
+        run: |
+          mkdir v8 && cd v8
+          fetch --no-history v8
+          cd ..
+          gclient sync --no-history
+      - name: Build fuzzers
+        run: |
+          cd v8
+          gn gen out/fuzz --args='is_asan=true is_debug=false v8_enable_i18n_support=false v8_static_library=true use_libfuzzer=true is_component_build=false symbol_level=1'
+          ninja -C out/fuzz -j4 v8_json_fuzzer v8_parser_fuzzer v8_wasm_fuzzer v8_regexp_fuzzer v8_multi_return_fuzzer v8_expression_fuzzer v8_code_coverage_fuzzer
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: v8-fuzzers
+          path: v8/out/fuzz/*_fuzzer
+          retention-days: 30
