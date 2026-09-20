@@ -28,5 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: v8-fuzzers
-          path: v8/out/fuzz/v8_simple_*_fuzzer
+          path: |
+            v8/out/fuzz/v8_simple_*_fuzzer
+            v8/out/fuzz/*.so
           retention-days: 30
