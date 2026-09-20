@@ -16,9 +16,7 @@ jobs:
           gclient --version || true
       - name: Fetch PDFium
         run: |
-          mkdir pdfium && cd pdfium
           fetch --no-history pdfium
-          cd ..
           gclient sync --no-history
       - name: Build
         run: |
