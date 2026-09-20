@@ -9,8 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup
-        run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq clang-18 ninja-build libwayland-dev wayland-protocols libxkbcommon-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq clang-18 ninja-build libx11-dev libx11-xcb-dev libxcb1-dev libxkbcommon-dev libwayland-dev wayland-protocols
       - name: Clone Dawn
         run: git clone --depth 1 https://dawn.googlesource.com/dawn dawn-src
       - name: Configure
@@ -21,9 +20,14 @@ jobs:
             -DCMAKE_CXX_COMPILER=/usr/lib/llvm-18/bin/clang++ \
             -DCMAKE_CXX_STANDARD=20 \
             -DDAWN_FETCH_DEPENDENCIES=ON \
-            -DDAWN_ENABLE_ASAN=ON -DDAWN_BUILD_SAMPLES=OFF -DDAWN_ENABLE_WAYLAND=OFF -DDAWN_ENABLE_X11=OFF -DTINT_BUILD_SAMPLES=OFF -DDAWN_ENABLE_GLFW=OFF \
+            -DDAWN_ENABLE_ASAN=ON \
             -DDAWN_BUILD_FUZZERS=ON \
             -DTINT_BUILD_FUZZERS=ON \
+            -DDAWN_BUILD_SAMPLES=OFF \
+            -DTINT_BUILD_SAMPLES=OFF \
+            -DDAWN_ENABLE_WAYLAND=OFF \
+            -DDAWN_ENABLE_X11=OFF \
+            -DDAWN_ENABLE_GLFW=OFF \
             -DCMAKE_C_FLAGS="-O1 -fno-omit-frame-pointer" \
             -DCMAKE_CXX_FLAGS="-O1 -fno-omit-frame-pointer"
       - name: Build
