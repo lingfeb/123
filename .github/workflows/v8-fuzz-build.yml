@@ -12,7 +12,9 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq pkg-config
           git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH="$(pwd)/depot_tools:$PATH"
           echo "$(pwd)/depot_tools" >> $GITHUB_PATH
+          gclient --version || true
       - name: Fetch V8
         run: |
           mkdir v8 && cd v8
