@@ -23,7 +23,7 @@ jobs:
         run: |
           cd v8
           gn gen out/fuzz --args='is_asan=true is_debug=false v8_enable_i18n_support=false v8_static_library=true is_component_build=false symbol_level=1'
-          ninja -C out/fuzz -j4 v8_simple_json_fuzzer v8_simple_parser_fuzzer v8_simple_regexp_fuzzer v8_simple_multi_return_fuzzer v8_simple_inspector_fuzzer v8_simple_wasm_interpreter_base_fuzzer v8_simple_wasm_interpreter_simd_fuzzer v8_simple_wasm_interpreter_code_fuzzer
+          ninja -C out/fuzz -j4 v8_simple_json_fuzzer v8_simple_parser_fuzzer v8_simple_regexp_fuzzer v8_simple_multi_return_fuzzer v8_simple_inspector_fuzzer
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
